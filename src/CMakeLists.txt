@@ -1,0 +1,5 @@
+set(EXECUTABLE_NAME "crc_prefixer")
+add_executable(${EXECUTABLE_NAME} main.cpp crc.cpp)
+target_compile_features(${EXECUTABLE_NAME} PUBLIC cxx_std_14)
+target_link_libraries(${EXECUTABLE_NAME} )
+INSTALL(TARGETS ${EXECUTABLE_NAME} DESTINATION bin)
