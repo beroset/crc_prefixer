@@ -1,7 +1,27 @@
 #include "crc.h"
 #include <numeric>
 
+#include <iostream>
+#include <iomanip>
+
 namespace beroset {
+
+template<typename T, T Poly>
+struct CRCTable {
+    static constexpr T mask{static_cast<T>(1u << (8 * sizeof(T) - 1))};
+    static constexpr unsigned shift{8 * sizeof(T) - 8};
+    static constexpr T Generate(T v, int r = 8) {
+        return r == 0 ? v : Generate((v << 1) ^ ((v & mask) ? Poly : 0), r - 1);
+    }
+    T tbl[256];
+    template<T ...Is>
+    constexpr CRCTable(std::integer_sequence<T, Is...>) : tbl{Generate(Is << shift)...} {}
+    constexpr CRCTable() : CRCTable(std::make_integer_sequence<T, 256>()) {}
+    constexpr T operator[](int i) const { return tbl[i]; }
+};
+
+static constexpr CRCTable<uint16_t, 0x1021> crc16tbl;
+
 /*!
  * \brief helper lambda to assist with CRC calculation
  *
@@ -13,15 +33,8 @@ namespace beroset {
  * \return the calculated CRC with the databyte applied
  *
  */
-auto crc_iter = [](uint16_t crc, uint8_t databyte){
-        crc ^= databyte << 8; 
-        for (auto count{8}; count; --count) {
-            bool hibit = crc & 0x8000;
-            crc <<= 1;
-            if (hibit)
-                crc ^= 0x1021;
-        }
-        return crc;
+static auto crc_iter = [](uint16_t crc, uint8_t databyte){
+    return crc16tbl[crc >> 8 ^ databyte] ^ (crc << 8);
 };
 
 /*!
