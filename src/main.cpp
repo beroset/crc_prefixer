@@ -30,14 +30,9 @@ int main(int argc, char *argv[])
     }
     // convert the string to a message
     auto message{hexStringToVector(argv[1])};
-    // remove the crc value from the last two bytes
-    uint16_t crc = message.back();
-    message.pop_back();
-    crc += 256 * message.back();
-    message.pop_back();
 
     auto zeroprefix{beroset::crc16(0, message.begin(), message.end())};
-    uint16_t calculated = beroset::find_prefix(message.size(), zeroprefix ^ crc);
+    uint16_t calculated = beroset::find_prefix(message.size(), zeroprefix);
     std::cout << "prefix = 0x" << std::hex << std::setfill('0') << std::setw(4) 
               << calculated << '\n';
 }
