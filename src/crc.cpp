@@ -94,8 +94,10 @@ constexpr uint16_t test_prefix(uint16_t bits, const std::array<uint16_t, 16> pre
  */
 uint16_t find_prefix(std::size_t len, uint16_t target) {
     std::array<uint16_t, 16> prefixtable{};
-    for (unsigned i{0}; i < 16; ++i) {
-        prefixtable[i] = prefix(1 << i, len);
+    auto v = prefixtable[0] = prefix(1, len);
+    for (unsigned i{1}; i < 16; ++i) {
+        prefixtable[i] = (v << 1) ^ ((v & 0x8000u) ? 0x1021 : 0);
+        v = prefixtable[i];
     }
     for (uint16_t prefix{0xffff}; prefix; --prefix) {
         if (target == test_prefix(prefix, prefixtable)) {
