@@ -50,4 +50,34 @@ In our case, we know **M**, bits(M), **P** and **R** and want to get **X**.
 Since division over GF(2) is distributive, we can factor still further by considering each individual bit of X separately, generating 16 remainders.  Because adding polynomials over GF(2) is identical to the XOR operator, all we need to do is XOR our unprefixed calculated remainder **R1** with the transmitted remainder **R** and try, at worst, 65,536 combinations of those 16 remainders to come up with the prefix.
 
 ## Further optimizations ##
-There are some further optimizations that could be done.  The first well-known optimization is to use a lookup table rather than bit-shifting and masking to calculate the CRC remainder.  This optimization is already used within the code.  The next optimization is to calculate the the table of remainders in a slightly more efficient manner.  Instead of calculating each from scratch for prefix values of 0x0001, 0x0002, 0x0004, etc. we can just calculate the first and then derive the others from it.
+There are some further optimizations that have been applied to the code which are enumerated and explained below.
+
+### Use a lookup table 
+One very well-known CRC optimization is to use a lookup table rather than bit-shifting and masking to calculate the CRC remainder.  Rather than manually writing out a table, the code uses a `constexpr` templated function to generate it at compile time.
+
+### Efficiently calculate remainder table
+Instead of calculating each from scratch for prefix values of 0x0001, 0x0002, 0x0004, etc. we can just calculate the first and then derive the others from it.
+
+### Use a Gray code search sequence
+When we have generated the prefix remainder table we have the remainder component if that particular bit were set, so the goal is to come up with the combination of prefix table entries that xor together to the target value.
+
+To minimize the time for these we use a Gray code.  Recall that a Gray code is an ordering such that successive terms differ by exactly one bit.
+
+We use this so that we only require one XOR operation of the current testvalue with one of the entries in the prefixtable array.
+
+Each iteration, we generate the entry number that should change, which corresponds with a bit position in the prefix and also as an index into the prefixtable array.
+
+The recursive definition for generating this sequence for any m-bit Gray code is this:
+
+```
+  void gray(int m) {
+      if (m > 0) {
+          gray(m-1);
+          std::cout << (m-1) << '\n';
+          gray(m-1);
+      }
+  }
+```
+
+That's compact but not very efficient, so the code actually uses a `std::vector` as a stack to do the same thing in an iterative rather than recursive manner.
+
