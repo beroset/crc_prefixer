@@ -3,9 +3,6 @@
 #include <algorithm>
 #include <vector>
 
-#include <iostream>
-#include <iomanip>
-
 namespace beroset {
 
 template<typename T, T Poly>
@@ -65,26 +62,6 @@ constexpr uint16_t prefix(uint16_t crc, std::size_t msglen) {
         crc = crc_iter(crc, 0);
     }
     return crc;
-}
-
-/*!
- * \brief XOR all values in prefixtable for which there is a 1 in bits
- *
- * For each set bit in bits, this does an XOR of the corresponding value
- * in prefixtable.
- *
- * \param bits each set bit in bits corresponds to a value in prefixtable
- * \param prefixtable a precalculated table of possible 1-bit CRC prefixes
- * \return the calculated XOR value
- */
-constexpr uint16_t test_prefix(uint16_t bits, const std::array<uint16_t, 16> prefixtable) {
-    uint16_t retval{0}; 
-    for (int i=0 ; bits; bits >>= 1, ++i) {
-        if (bits & 1) {
-            retval ^= prefixtable[i];
-        }
-    }
-    return retval;
 }
 
 /*!
