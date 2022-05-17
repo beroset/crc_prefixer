@@ -22,17 +22,32 @@ std::vector<uint8_t> hexStringToVector(std::string str) {
     return retval;
 }
 
-int main(int argc, char *argv[])
-{
-    if (argc != 2) {
-        std::cout << "Usage: crc_prefixer hexmessage\n";
-        return 1;
+std::ostream& operator<<(std::ostream& out, const std::vector<uint8_t>& vec) {
+    for (const auto& num : vec) {
+        out << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned>(num);
     }
-    // convert the string to a message
-    auto message{hexStringToVector(argv[1])};
+    return out;
+}
 
-    auto zeroprefix{beroset::crc16(0, message.begin(), message.end())};
-    uint16_t calculated = beroset::find_prefix(message.size(), zeroprefix);
-    std::cout << "prefix = 0x" << std::hex << std::setfill('0') << std::setw(4) 
-              << calculated << '\n';
+int main()
+{
+    std::string line;
+    unsigned linenum{0};
+    std::vector<uint8_t> message;
+    while (std::getline(std::cin, line)) {
+        ++linenum;
+        // convert the string to a message
+        try {
+            message = hexStringToVector(line);
+        } catch (std::invalid_argument err) {
+            std::cerr << "ignoring bad line " << std::dec << linenum << '\n';
+            std::cerr << message << '\n';
+            continue;
+        }
+
+        auto zeroprefix{beroset::crc16(0, message.begin(), message.end())};
+        uint16_t calculated = beroset::find_prefix(message.size(), zeroprefix);
+        std::cout << "0x" << std::hex << std::setfill('0') << std::setw(4) 
+                  << calculated << '\n';
+    }
 }
