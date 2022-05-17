@@ -4,8 +4,8 @@ A Cyclic Redundancy Code (CRC) is a kind of mathematical checksum that is common
 
 # Example
 ```
-> crc_prefixer 30FFFFFFFFFFFF50CF5DD9E2C0B80065F5D1A483F0FBBC6F01001E6C043B517E90B286
-prefix = 0x5fd6
+> echo 30FFFFFFFFFFFF50CF5DD9E2C0B80065F5D1A483F0FBBC6F01001E6C043B517E90B286 | crc_prefixer 
+0x5fd6
 ```
 
 # What it does
