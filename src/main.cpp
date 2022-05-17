@@ -41,7 +41,6 @@ int main()
             message = hexStringToVector(line);
         } catch (std::invalid_argument err) {
             std::cerr << "ignoring bad line " << std::dec << linenum << '\n';
-            std::cerr << message << '\n';
             continue;
         }
 
